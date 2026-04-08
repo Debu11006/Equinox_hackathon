@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, MapPin, Star, ArrowRight, Plus, Terminal, Edit3, MonitorSmartphone, Code, Shield, Briefcase, X } from 'lucide-react';
-import { collection, getDocs, query, where, limit } from 'firebase/firestore';
+import { collection, getDocs, query, where, limit, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '../context/AuthContext';
+import { Search, MapPin, Star, ArrowRight, Plus, Terminal, Edit3, MonitorSmartphone, Code, Shield, Briefcase, X, Loader2, CheckCircle } from 'lucide-react';
 
 const FALLBACK_FREELANCERS = [
   {
@@ -33,14 +34,17 @@ const FALLBACK_FREELANCERS = [
 ];
 
 export default function HireDiscoveryPage() {
+  const { user, profile } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [freelancers, setFreelancers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [showToast, setShowToast] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     category: 'Web Development',
-    level: 'Apprentice',
+    preferredRank: 'Apprentice',
     description: '',
     budget: '',
     timeline: '',
@@ -64,21 +68,43 @@ export default function HireDiscoveryPage() {
     setFormData({ ...formData, tags: formData.tags.filter(t => t !== tagToRemove) });
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Gig Posted (to be saved to Firebase):', formData);
-    setIsModalOpen(false);
-    // Reset form
-    setFormData({ 
-      title: '', 
-      category: 'Web Development', 
-      level: 'Apprentice', 
-      description: '', 
-      budget: '', 
-      timeline: '', 
-      timelineUnit: 'Days',
-      tags: [] 
-    });
+    if (!user) return;
+
+    setSubmitting(true);
+    try {
+      await addDoc(collection(db, 'gigs'), {
+        ...formData,
+        clientId: user.uid,
+        clientName: profile?.displayName || user.displayName || 'Anonymous Client',
+        clientCompany: profile?.companyName || 'Not Specified',
+        status: 'open',
+        createdAt: serverTimestamp()
+      });
+
+      // Success sequence
+      setIsModalOpen(false);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 4000);
+
+      // Reset form
+      setFormData({ 
+        title: '', 
+        category: 'Web Development', 
+        preferredRank: 'Apprentice', 
+        description: '', 
+        budget: '', 
+        timeline: '', 
+        timelineUnit: 'Days',
+        tags: [] 
+      });
+    } catch (error) {
+      console.error('Error posting gig:', error);
+      alert('Failed to post gig. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const inputClass = 'w-full bg-[#1A1A1A] border border-zinc-700 text-white rounded-xl px-4 py-3 placeholder:text-zinc-500 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all';
@@ -387,17 +413,17 @@ export default function HireDiscoveryPage() {
                 />
               </div>
 
-              {/* Level Alignment */}
+              {/* Preferred Rank */}
               <div className="flex flex-col gap-2 text-left">
-                <label className="text-sm font-semibold text-zinc-300">Minimum Role Required</label>
+                <label className="text-sm font-semibold text-zinc-300">Preferred Rank</label>
                 <div className="grid grid-cols-2 gap-3">
                   {['Apprentice', 'Associate', 'Specialist', 'Professional'].map((lvl) => (
                     <button
                       key={lvl}
                       type="button"
-                      onClick={() => setFormData({ ...formData, level: lvl })}
+                      onClick={() => setFormData({ ...formData, preferredRank: lvl })}
                       className={`py-2 rounded-xl text-xs font-bold border transition-all ${
-                        formData.level === lvl
+                        formData.preferredRank === lvl
                           ? 'bg-amber-500/10 border-amber-500 text-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.1)]'
                           : 'bg-[#1A1A1A] border-zinc-700 text-zinc-500 hover:border-zinc-500 hover:text-zinc-300'
                       }`}
@@ -463,20 +489,45 @@ export default function HireDiscoveryPage() {
               <div className="flex items-center justify-end gap-3 pt-2">
                 <button
                   type="button"
+                  disabled={submitting}
                   onClick={() => setIsModalOpen(false)}
-                  className="text-zinc-400 hover:text-white font-semibold px-5 py-2.5 rounded-xl transition-colors"
+                  className="text-zinc-400 hover:text-white font-semibold px-5 py-2.5 rounded-xl transition-colors disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex items-center gap-2 bg-white hover:bg-amber-50 text-black font-bold px-6 py-2.5 rounded-xl transition-colors shadow-lg"
+                  disabled={submitting}
+                  className="flex items-center gap-2 bg-white hover:bg-amber-50 text-black font-bold px-6 py-2.5 rounded-xl transition-colors shadow-lg disabled:opacity-50 min-w-[140px] justify-center"
                 >
-                  <Plus className="w-4 h-4" /> Post Gig
+                  {submitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" /> Posting...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4" /> Post Gig
+                    </>
+                  )}
                 </button>
               </div>
             </form>
 
+          </div>
+        </div>
+      )}
+
+      {/* Success Toast */}
+      {showToast && (
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
+          <div className="flex items-center gap-3 bg-zinc-900 border border-emerald-500/50 text-emerald-400 px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-md">
+            <div className="bg-emerald-500/10 p-1.5 rounded-full">
+              <CheckCircle className="w-5 h-5" />
+            </div>
+            <div className="flex flex-col">
+              <span className="font-bold text-sm">Gig Posted Successfully</span>
+              <span className="text-zinc-500 text-xs">Your project is now live and accepting applications.</span>
+            </div>
           </div>
         </div>
       )}

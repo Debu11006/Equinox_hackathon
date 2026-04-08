@@ -92,10 +92,10 @@ export default function BrowseGigsPage() {
             id: doc.id,
             title: d.title || 'Freelance Project',
             clientName: d.clientName || 'Verified Hirer',
-            budget: d.budget || d.price || 1000,
-            requiredSkill: d.requiredSkill || d.skillsRequired?.[0] || 'web-dev',
-            minRole: d.minRole || d.level || 'apprentice',
-            duration: d.duration || 'Flexible',
+            budget: Number(d.budget) || Number(d.price) || 1000,
+            requiredSkill: d.requiredSkill || d.category?.toLowerCase().replace(/\s+/g, '-') || 'web-dev',
+            minRole: d.preferredRank || d.minRole || d.level || 'apprentice',
+            duration: d.timeline ? `${d.timeline} ${d.timelineUnit}` : 'Flexible',
             description: d.description || 'Project details will be provided in the full listing.',
             clientRating: d.clientRating || 5.0
           };
@@ -118,8 +118,8 @@ export default function BrowseGigsPage() {
       const userRankVal = RANK_VALUES[userRank] || 1;
       const minRoleVal = RANK_VALUES[gig.minRole.toLowerCase()] || 1;
       
-      const isLocked = userRankVal < minRoleVal;
-      const isRecommended = !isLocked && (userRankVal === minRoleVal || userRankVal === minRoleVal + 1);
+      const isLocked = false; // Rank locks removed as per user request
+      const isRecommended = (userRankVal === minRoleVal || userRankVal === minRoleVal + 1);
       
       return {
         ...gig,
@@ -140,7 +140,7 @@ export default function BrowseGigsPage() {
       return searchMatch && skillMatch && roleMatch && budgetMatch;
     });
 
-    // Sorting: Recommended first, then Unlocked, then Locked
+    // Sorting: Recommended first, then Unlocked
     return result.sort((a, b) => b.matchScore - a.matchScore);
   }, [gigs, userRanks, searchQuery, selectedSkill, selectedRole, maxBudget]);
 
@@ -224,7 +224,7 @@ export default function BrowseGigsPage() {
                 max="10000" 
                 step="500"
                 value={maxBudget === '' ? 10000 : maxBudget}
-                onChange={(e) => setMaxBudget(parseInt(e.target.value))}
+                onChange={(e) => setMaxBudget(Number(e.target.value))}
                 className="w-full h-1 bg-zinc-800 accent-amber-500 rounded-lg appearance-none cursor-pointer"
               />
             </div>
@@ -318,44 +318,24 @@ export default function BrowseGigsPage() {
                   </div>
                 </div>
 
-                {/* Footer: Detailed CTA with Lock Mechanism */}
-                <div className="flex items-center justify-between pt-6 border-t border-zinc-900">
+                {/* Footer: Detailed CTA */}
+                <div className="flex items-center justify-between pt-6 border-t border-zinc-900 mt-auto">
                   <div className="flex items-center gap-1.5 text-zinc-500 text-xs font-medium">
                     <Clock className="w-3.5 h-3.5" />
                     {gig.duration}
                   </div>
                   
-                  {gig.isLocked ? (
-                    <div className="relative group/tooltip">
-                      <button className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 text-zinc-600 font-bold text-xs px-5 py-2.5 rounded-xl cursor-not-allowed opacity-60">
-                         <Lock className="w-4 h-4" />
-                         Locked
-                      </button>
-                      <div className="absolute bottom-full right-0 mb-3 w-64 p-3 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl opacity-0 group-hover/tooltip:opacity-100 transition-all pointer-events-none translate-y-2 group-hover/tooltip:translate-y-0 z-50">
-                        <div className="flex items-start gap-2.5">
-                          <Info className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
-                          <p className="text-[11px] text-zinc-300 leading-relaxed font-medium">
-                            Upskill to <span className="text-white font-black uppercase text-[10px]">{gig.minRole}</span> in {SKILL_NAMES[gig.requiredSkill]} to unlock this gig.
-                            <Link href={`/learn/${gig.requiredSkill}`} className="block text-amber-500 font-bold mt-1 hover:underline underline-offset-2 pointer-events-auto">
-                              Start Learning Workspace →
-                            </Link>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <Link 
-                      href={`/gigs/${gig.id}`}
-                      className={`flex items-center gap-2 font-bold text-xs px-6 py-2.5 rounded-xl transition-all border ${
-                        gig.isRecommended 
-                          ? 'bg-white hover:bg-zinc-200 text-black border-transparent shadow-lg' 
-                          : 'bg-zinc-900 hover:bg-zinc-800 text-white border-zinc-800 hover:border-zinc-700'
-                      }`}
-                    >
-                      View Details
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
-                  )}
+                  <Link 
+                    href={`/gigs/${gig.id}`}
+                    className={`flex items-center gap-2 font-bold text-xs px-6 py-2.5 rounded-xl transition-all border ${
+                      gig.isRecommended 
+                        ? 'bg-white hover:bg-zinc-200 text-black border-transparent shadow-lg' 
+                        : 'bg-zinc-900 hover:bg-zinc-800 text-white border-zinc-800 hover:border-zinc-700'
+                    }`}
+                  >
+                    View Details
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
                 </div>
               </div>
             ))}

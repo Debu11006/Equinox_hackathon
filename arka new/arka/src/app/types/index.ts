@@ -11,6 +11,7 @@ export interface UserDocument {
   createdAt?: Timestamp | Date;
   
   // Student-specific fields
+  title?: string;
   bio?: string;
   skills?: string[];
   portfolioLinks?: string[];

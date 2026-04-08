@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useAuth } from '../context/AuthContext';
 import ProfileDropdown from './ProfileDropdown';
+import MessagesIconButton from './MessagesIconButton';
 import { usePathname } from 'next/navigation';
 import { useViewMode } from '../context/ViewModeContext';
 
@@ -56,7 +57,10 @@ export default function Navbar() {
         {/* Content (Right): Actions & Admin Badge */}
         <div className="flex shrink-0 items-center gap-4 ml-auto lg:ml-0">
           {user ? (
-            <ProfileDropdown />
+            <div className="flex items-center gap-2">
+              <MessagesIconButton />
+              <ProfileDropdown />
+            </div>
           ) : (
             <Link 
               href="/login"

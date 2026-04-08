@@ -6,11 +6,30 @@ import ProtectedRoute from '../components/ProtectedRoute';
 import { db } from '../lib/firebase';
 import { doc, getDoc, setDoc, serverTimestamp, onSnapshot, collection } from 'firebase/firestore';
 import { UserDocument, UserRole } from '../types';
-import { User, Mail, Save, FileText, Loader2, Link as LinkIcon, AlertCircle, ArrowLeft, Plus, X, Award, Shield, Zap, Crown, Sparkles } from 'lucide-react';
+import { 
+  User, 
+  Mail, 
+  Save, 
+  FileText, 
+  Loader2, 
+  Link as LinkIcon, 
+  AlertCircle, 
+  ArrowLeft, 
+  Plus, 
+  X, 
+  Award, 
+  Shield, 
+  Zap, 
+  Crown, 
+  Sparkles, 
+  Briefcase 
+} from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function ProfilePage() {
   const { user } = useAuth();
+  const router = useRouter();
   
   const [profileData, setProfileData] = useState<Partial<UserDocument>>({});
   const [verifiedSkills, setVerifiedSkills] = useState<{ id: string, name: string, rank: string }[]>([]);
@@ -101,6 +120,11 @@ export default function ProfilePage() {
       }, { merge: true }); // Use merge so we don't overwrite server-controlled fields like createdAt
       
       setMessage({ type: 'success', text: 'Profile updated successfully!' });
+      
+      // Redirect to profile view after a brief delay if needed, or immediately
+      setTimeout(() => {
+        router.push('/profile/view');
+      }, 500); 
     } catch (error) {
       console.error("Error saving profile:", error);
       setMessage({ type: 'error', text: 'Failed to save changes.' });
@@ -173,7 +197,7 @@ export default function ProfilePage() {
               )}
 
               <div className="grid gap-8">
-                {/* Identity Defaults (Read Only purely based on Auth info here for simplicity, though can handle edits) */}
+                {/* Identity Defaults */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="flex flex-col gap-2">
                     <label className="text-sm font-medium text-zinc-400 flex items-center gap-2"><User className="h-4 w-4" /> Display Name</label>
@@ -181,11 +205,21 @@ export default function ProfilePage() {
                       type="text" 
                       value={profileData.displayName || ''} 
                       onChange={(e) => setProfileData({...profileData, displayName: e.target.value})}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-950/50 py-3 pl-4 pr-4 pl text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-zinc-700 outline-none transition ring-1 ring-transparent focus:ring-zinc-800"
+                      className="w-full rounded-xl border border-zinc-800 bg-zinc-950/50 py-3 px-4 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-zinc-700 outline-none transition"
                       placeholder="Your Name"
                     />
                   </div>
                   <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-zinc-400 flex items-center gap-2"><Briefcase className="h-4 w-4" /> Professional Title</label>
+                    <input 
+                      type="text" 
+                      value={profileData.title || ''} 
+                      onChange={(e) => setProfileData({...profileData, title: e.target.value})}
+                      className="w-full rounded-xl border border-zinc-800 bg-zinc-950/50 py-3 px-4 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-zinc-700 outline-none transition"
+                      placeholder="e.g. Full-Stack Developer | IT Student"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2 sm:col-span-2">
                     <label className="text-sm font-medium text-zinc-400 flex items-center gap-2"><Mail className="h-4 w-4" /> Email Address</label>
                     <input 
                       type="email" 

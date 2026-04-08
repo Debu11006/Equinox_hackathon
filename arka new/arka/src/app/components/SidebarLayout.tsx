@@ -11,6 +11,7 @@ import {
 import { useViewMode } from '../context/ViewModeContext';
 import ProfileDropdown from './ProfileDropdown';
 import { useAuth } from '../context/AuthContext';
+import MessagesIconButton from './MessagesIconButton';
 
 interface SidebarLayoutProps {
   children: React.ReactNode;
@@ -26,9 +27,10 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
     { name: 'Home', href: '/dashboard', icon: Home },
     { name: 'Skill Paths', href: '/learn', icon: BookOpen },
     { name: 'Active Gigs', href: '/dashboard/gigs', icon: Briefcase },
-    { name: 'DIVIDER', href: '', icon: Home }, // Internal flag for divider
+    { name: 'DIVIDER', href: '', icon: Home },
     { name: 'Post a Service', href: '/dashboard/post-service', icon: PlusSquare },
     { name: 'Browse Gigs', href: '/dashboard/browse-gigs', icon: Search },
+    { name: 'Messages', href: '/dashboard/messages', icon: MessageSquare },
   ];
 
   const clientLinks = [
@@ -125,10 +127,10 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <MessagesIconButton />
             <button className="relative p-2 text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-zinc-900">
               <Bell className="w-5 h-5" />
-              {/* Example Notification Badge */}
               <span className="absolute top-2 right-2.5 w-1.5 h-1.5 bg-accent rounded-full animate-pulse"></span>
             </button>
             <ProfileDropdown />

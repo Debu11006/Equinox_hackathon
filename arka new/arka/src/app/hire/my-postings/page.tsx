@@ -99,10 +99,13 @@ export default function MyPostingsPage() {
                     </div>
                   </div>
 
-                  <button className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white font-bold text-sm px-6 py-3 rounded-xl transition-colors ml-auto md:ml-0">
+                  <Link
+                    href={`/hire/my-postings/${gig.id}`}
+                    className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white font-bold text-sm px-6 py-3 rounded-xl transition-colors ml-auto md:ml-0"
+                  >
                     Manage Gig
                     <ArrowRight className="w-4 h-4" />
-                  </button>
+                  </Link>
                 </div>
               </div>
             ))}

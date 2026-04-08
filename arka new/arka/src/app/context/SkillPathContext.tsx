@@ -232,8 +232,7 @@ export function buildMilestones(
     const id = `${rank}_${idx}`;
     const rawStatus = firestoreStatuses[id];
     const status: MilestoneStatus =
-      rawStatus === 'completed' ? 'completed' :
-      rawStatus === 'locked'   ? 'locked'    : 'incomplete';
+      rawStatus === 'completed' ? 'completed' : 'incomplete';
     return {
       id,
       title: task.title,

@@ -1,0 +1,31 @@
+# ── Secrets & credentials ─────────────────────────────────────────────────────
+serviceAccountKey.json
+*.json.key
+firebase-adminsdk*.json
+
+# ── Environment variables ──────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ── Python runtime ────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# ── Virtual environments ───────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+.env/
+ENV/
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+*.out
+
+# ── OS noise ──────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db

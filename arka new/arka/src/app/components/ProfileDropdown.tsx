@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { User as UserIcon, LogOut, Repeat, LayoutDashboard } from 'lucide-react';
+import { User as UserIcon, LogOut, Repeat, LayoutDashboard, UserRound } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import { auth } from '../lib/firebase';
@@ -72,6 +72,14 @@ export default function ProfileDropdown() {
           </div>
 
           <div className="flex flex-col px-2">
+            <button
+              onClick={() => closeAndNavigate('/profile/view')}
+              className="flex items-center gap-3 w-full text-left px-3 py-2.5 text-sm font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/50 rounded-xl transition-all"
+            >
+              <UserRound className="w-4 h-4" />
+              View Profile
+            </button>
+
             <button
               onClick={() => closeAndNavigate('/dashboard')}
               className="flex items-center gap-3 w-full text-left px-3 py-2.5 text-sm font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/50 rounded-xl transition-all"
