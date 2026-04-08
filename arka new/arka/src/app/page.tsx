@@ -65,7 +65,7 @@ export default function Home() {
         <div className="text-center mb-16">
           <h3 className="text-4xl font-bold text-white mb-6">What is ARKA?</h3>
           <p className="text-lg text-zinc-400 max-w-3xl mx-auto leading-relaxed">
-            ARKA is a milestone-based, skill-building platform that connects ambitious students with real-world opportunities. We bridge the gap between academic theory and professional execution.
+            ARKA is a milestone-based, skill-building platform that connects professional freelancers with real-world business opportunities. We bridge the gap between education and global professional execution.
           </p>
         </div>
 
@@ -89,9 +89,9 @@ export default function Home() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-zinc-900/40 border border-zinc-800/80 rounded-3xl p-10 shadow-2xl">
           <div>
-            <h4 className="text-2xl font-bold text-white mb-6">For Students</h4>
+            <h4 className="text-2xl font-bold text-white mb-6">For Freelancers</h4>
             <ul className="space-y-4">
-              {['Build a validated resume from scratch', 'Access real startup clients immediately', 'Get paid securely on finishing gigs'].map((item, i) => (
+              {['Build a professional validated resume', 'Access global clients immediately', 'Get paid securely on finishing gigs'].map((item, i) => (
                 <li key={i} className="flex items-start gap-3">
                   <div className="mt-1 bg-accent/20 p-1 rounded-full"><Check className="h-3 w-3 text-accent" /></div>
                   <span className="text-zinc-300">{item}</span>
@@ -100,7 +100,7 @@ export default function Home() {
             </ul>
           </div>
           <div className="pl-0 md:pl-10 md:border-l border-zinc-800/80 mt-10 md:mt-0">
-            <h4 className="text-2xl font-bold text-white mb-6">For Small Businesses</h4>
+            <h4 className="text-2xl font-bold text-white mb-6">For Clients</h4>
             <ul className="space-y-4">
               {['Hire pre-vetted, highly motivated talent', 'Cost-effective project execution', 'Completely managed workflow escrow'].map((item, i) => (
                 <li key={i} className="flex items-start gap-3">
@@ -122,9 +122,9 @@ export default function Home() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
           
-          {/* Left Column (Students) */}
+          {/* Left Column (Freelancers) */}
           <div>
-            <h4 className="text-3xl font-bold text-white mb-8">Learn, Build, Earn</h4>
+            <h4 className="text-3xl font-bold text-white mb-8">Build Your Professional Identity</h4>
             <div className="space-y-8 mb-12">
               <div className="flex gap-4">
                 <div className="shrink-0 w-8 h-8 rounded-full bg-zinc-800 text-white font-bold flex items-center justify-center">1</div>
@@ -144,7 +144,7 @@ export default function Home() {
                 <div className="shrink-0 w-8 h-8 rounded-full bg-accent text-black font-bold flex items-center justify-center">3</div>
                 <div>
                   <h5 className="text-lg font-bold text-white mb-1">Take Real Projects</h5>
-                  <p className="text-zinc-400">Unlock the gig feed and earn money directly.</p>
+                  <p className="text-zinc-400">Unlock the freelancer feed and earn money directly.</p>
                 </div>
               </div>
             </div>
@@ -175,13 +175,13 @@ export default function Home() {
 
           {/* Right Column (Clients) */}
           <div>
-            <h4 className="text-3xl font-bold text-white mb-8">Discover Hidden Talent</h4>
+            <h4 className="text-3xl font-bold text-white mb-8">Discover Professional Talent</h4>
             <div className="space-y-8 mb-12">
               <div className="flex gap-4">
                 <div className="shrink-0 w-8 h-8 rounded-full bg-zinc-800 text-white font-bold flex items-center justify-center">1</div>
                 <div>
-                  <h5 className="text-lg font-bold text-white mb-1">Browse Talent</h5>
-                  <p className="text-zinc-400">View mathematically verified student portfolios.</p>
+                  <h5 className="text-lg font-bold text-white mb-1">Browse Freelancers</h5>
+                  <p className="text-zinc-400">View mathematically verified talent portfolios.</p>
                 </div>
               </div>
               <div className="flex gap-4">
@@ -195,7 +195,7 @@ export default function Home() {
                 <div className="shrink-0 w-8 h-8 rounded-full bg-accent text-black font-bold flex items-center justify-center">3</div>
                 <div>
                   <h5 className="text-lg font-bold text-white mb-1">Hire with Confidence</h5>
-                  <p className="text-zinc-400">Know exactly what skills the student brings.</p>
+                  <p className="text-zinc-400">Know exactly what skills the freelancer brings.</p>
                 </div>
               </div>
             </div>

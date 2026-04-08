@@ -22,7 +22,7 @@ const INTERESTS = [
 
 export default function OnboardingCrossroads({ onChoice }: OnboardingCrossroadsProps) {
   const { user } = useAuth();
-  const [step, setStep] = useState<'choice' | 'student_profile' | 'client_profile'>('choice');
+  const [step, setStep] = useState<'choice' | 'freelancer_profile' | 'client_profile'>('choice');
   const [loading, setLoading] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -89,7 +89,7 @@ export default function OnboardingCrossroads({ onChoice }: OnboardingCrossroadsP
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl">
             <button 
-              onClick={() => setStep('student_profile')}
+              onClick={() => setStep('freelancer_profile')}
               className="group relative flex flex-col items-start p-8 rounded-[2.5rem] bg-[#0E0E0E] border border-zinc-800/80 hover:border-amber-500/50 transition-all duration-500 text-left overflow-hidden shadow-2xl hover:shadow-[0_0_50px_rgba(245,158,11,0.1)] transform hover:-translate-y-2"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 -mr-16 -mt-16" />
@@ -113,12 +113,12 @@ export default function OnboardingCrossroads({ onChoice }: OnboardingCrossroadsP
               <div className="w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-8 group-hover:bg-blue-500/20 group-hover:border-blue-500/30 transition-all duration-500">
                 <Briefcase className="w-7 h-7 text-zinc-400 group-hover:text-blue-500" />
               </div>
-              <h3 className="text-2xl font-bold text-white mb-3 tracking-tight">Hire a Talent</h3>
+              <h3 className="text-2xl font-bold text-white mb-3 tracking-tight">Become a Client</h3>
               <p className="text-zinc-500 group-hover:text-zinc-300 transition-colors leading-relaxed mb-8">
-                Post project requirements and hire pre-vetted student professionals.
+                Post project requirements and hire pre-vetted freelance professionals.
               </p>
               <div className="mt-auto flex items-center gap-2 text-sm font-bold text-blue-500 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-[-10px] group-hover:translate-x-0">
-                Hire Now <ArrowRight className="w-4 h-4" />
+                Start Hiring <ArrowRight className="w-4 h-4" />
               </div>
             </button>
           </div>
@@ -127,8 +127,8 @@ export default function OnboardingCrossroads({ onChoice }: OnboardingCrossroadsP
     );
   }
 
-  // --- 2. STUDENT (FREELANCER) PROFILE SETUP ---
-  if (step === 'student_profile') {
+  // --- 2. FREELANCER PROFILE SETUP ---
+  if (step === 'freelancer_profile') {
     return (
       <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-3xl overflow-y-auto py-12 px-4 animate-in zoom-in-95 duration-500">
         <div className="max-w-2xl w-full flex flex-col gap-10">
@@ -277,7 +277,7 @@ export default function OnboardingCrossroads({ onChoice }: OnboardingCrossroadsP
                 disabled={loading}
                 className="flex items-center justify-center gap-3 w-full bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed text-black font-black uppercase tracking-widest py-4 rounded-xl transition-all shadow-[0_0_25px_rgba(245,158,11,0.2)]"
               >
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Complete Profile & Start Learning <ArrowRight className="w-5 h-5" /></>}
+                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Complete Profile & Join as Freelancer <ArrowRight className="w-5 h-5" /></>}
               </button>
               <button onClick={() => setStep('choice')} type="button" className="text-zinc-600 text-xs font-bold uppercase tracking-widest hover:text-zinc-400 text-center">Back to choices</button>
             </div>
@@ -318,7 +318,7 @@ export default function OnboardingCrossroads({ onChoice }: OnboardingCrossroadsP
               disabled={loading}
               className="mt-4 flex items-center justify-center gap-3 w-full bg-blue-500 hover:bg-blue-400 disabled:opacity-50 disabled:cursor-not-allowed text-white font-black uppercase tracking-widest py-4 rounded-xl transition-all shadow-[0_0_25px_rgba(59,130,246,0.2)]"
             >
-              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Finish Setup & Hire Talent <ArrowRight className="w-5 h-5" /></>}
+              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Finish Setup & Start Hiring <ArrowRight className="w-5 h-5" /></>}
             </button>
             <button onClick={() => setStep('choice')} type="button" className="text-zinc-600 text-xs font-bold uppercase tracking-widest hover:text-zinc-400 text-center">Back to choices</button>
           </form>

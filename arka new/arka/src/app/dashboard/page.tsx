@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useViewMode } from '../context/ViewModeContext';
 import { BadgeCheck, CreditCard, MapPin, Target, BookOpen, ArrowRight, Clock } from 'lucide-react';
 import Link from 'next/link';
-import HirerDashboard from './HirerDashboard';
+import ClientDashboard from './ClientDashboard';
 import { db } from '../lib/firebase';
 import { collection, onSnapshot, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import OnboardingCrossroads from '../components/OnboardingCrossroads';
@@ -77,10 +77,10 @@ export default function DashboardPage() {
     return () => unsubscribe();
   }, [user]);
 
-  // Hirer Redirection Logic (Hook must be at top)
+  // Client Redirection Logic (Hook must be at top)
   useEffect(() => {
-    // Only redirect if onboarding is finished and they are in hirer mode
-    if (viewMode === 'hirer' && profile?.onboardingComplete) {
+    // Only redirect if onboarding is finished and they are in client mode
+    if (viewMode === 'client' && profile?.onboardingComplete) {
       router.push('/hire');
     }
   }, [viewMode, profile, router]);
@@ -93,7 +93,7 @@ export default function DashboardPage() {
       const { updateProfile } = await import('firebase/auth');
       const userRef = doc(db, 'users', user.uid);
       const accountType = role === 'student' ? 'freelancer' : 'client';
-      const targetViewMode = role === 'student' ? 'learner' : 'hirer';
+      const targetViewMode = role === 'student' ? 'freelancer' : 'client';
 
       const updateData: any = {
         role: role,
@@ -170,8 +170,8 @@ export default function DashboardPage() {
   }
 
   // 2. Determine if onboarding is truly complete for the current role
-  // Admis bypass this block
-  const isFreelancer = profile?.accountType === 'freelancer' || viewMode === 'learner';
+  // Admins bypass this block
+  const isFreelancer = profile?.accountType === 'freelancer' || viewMode === 'freelancer';
   const hasThoroughProfile = profile?.profile?.interests?.length > 0 && profile?.profile?.degree;
   
   const showOnboarding = user && !isAdmin && (!profile || !profile.onboardingComplete || (isFreelancer && !hasThoroughProfile));
@@ -179,9 +179,8 @@ export default function DashboardPage() {
     return <OnboardingCrossroads onChoice={handleChoice} />;
   }
 
-  // 3. If in Hirer mode, redirect to Hire Discovery page
-  if (viewMode === 'hirer') {
-    return null; // Prevent flicker before redirect
+  if (viewMode === 'client') {
+    return <ClientDashboard />;
   }
 
 
@@ -191,14 +190,14 @@ export default function DashboardPage() {
       <div className="flex flex-col gap-1.5 px-2">
         <div className="flex items-center gap-3">
           <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
-            Welcome back, {user?.displayName ? user.displayName.split(' ')[0] : 'Student'}
+            Welcome back, {user?.displayName ? user.displayName.split(' ')[0] : 'Freelancer'}
           </h1>
           <div className="flex items-center gap-1.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-full">
             <BadgeCheck className="w-4 h-4" />
             <span className="text-xs font-bold uppercase tracking-wider italic">Verified Talent</span>
           </div>
         </div>
-        <p className="text-zinc-400 font-medium tracking-wide">Learner &bull; Active Progress Track</p>
+        <p className="text-zinc-400 font-medium tracking-wide">Freelancer &bull; Active Progress Track</p>
       </div>
 
       {/* 2. Top Stats Grid */}

@@ -22,7 +22,7 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
   const pathname = usePathname();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  const learnerLinks = [
+  const freelancerLinks = [
     { name: 'Home', href: '/dashboard', icon: Home },
     { name: 'Skill Paths', href: '/learn', icon: BookOpen },
     { name: 'Active Gigs', href: '/dashboard/gigs', icon: Briefcase },
@@ -31,14 +31,14 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
     { name: 'Browse Gigs', href: '/dashboard/browse-gigs', icon: Search },
   ];
 
-  const hirerLinks = [
+  const clientLinks = [
     { name: 'Browse Talent', href: '/hire', icon: Search },
     { name: 'My Postings', href: '/hire/my-postings', icon: FileText },
     { name: 'Messages', href: '/hire/messages', icon: MessageSquare },
     { name: 'Payments', href: '/hire/payments', icon: CreditCard },
   ];
 
-  const links = viewMode === 'learner' ? learnerLinks : hirerLinks;
+  const links = viewMode === 'freelancer' ? freelancerLinks : clientLinks;
 
   return (
     <div className="flex min-h-screen bg-[#0A0A0A] text-zinc-50 font-sans">

@@ -7,7 +7,7 @@ import { collection, getDocs, query, where, limit } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useRouter } from 'next/navigation';
 
-const FALLBACK_TALENT = [
+const FALLBACK_FREELANCERS = [
   {
     id: '1',
     initial: 'P',
@@ -34,7 +34,7 @@ const FALLBACK_TALENT = [
 
 export default function HireDiscoveryPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [students, setStudents] = useState<any[]>([]);
+  const [freelancers, setFreelancers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -84,16 +84,16 @@ export default function HireDiscoveryPage() {
   const inputClass = 'w-full bg-[#1A1A1A] border border-zinc-700 text-white rounded-xl px-4 py-3 placeholder:text-zinc-500 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all';
 
   useEffect(() => {
-    const fetchStudents = async () => {
+    const fetchFreelancers = async () => {
       try {
-        const q = query(collection(db, 'users'), where('role', '==', 'student'), limit(8));
+        const q = query(collection(db, 'users'), where('accountType', '==', 'freelancer'), limit(8));
         const snapshot = await getDocs(q);
-        const studentsData = snapshot.docs.map(doc => {
+        const freelancersData = snapshot.docs.map(doc => {
           const data = doc.data();
           return {
             id: doc.id,
             initial: data.displayName ? data.displayName.charAt(0).toUpperCase() : 'U',
-            name: data.displayName || 'Unknown Student',
+            name: data.displayName || 'Unknown Freelancer',
             location: data.location || 'Hyderabad',
             tags: data.skills || ['General'],
             projects: data.projectsCompleted || Math.floor(Math.random() * 5) + 1,
@@ -103,24 +103,24 @@ export default function HireDiscoveryPage() {
           };
         });
         
-        if (studentsData.length === 0) {
-          setStudents(FALLBACK_TALENT);
+        if (freelancersData.length === 0) {
+          setFreelancers(FALLBACK_FREELANCERS);
         } else {
-          setStudents(studentsData);
+          setFreelancers(freelancersData);
         }
       } catch (error) {
-        console.error('Error fetching students:', error);
-        setStudents(FALLBACK_TALENT);
+        console.error('Error fetching freelancers:', error);
+        setFreelancers(FALLBACK_FREELANCERS);
       } finally {
         setLoading(false);
       }
     };
-    fetchStudents();
+    fetchFreelancers();
   }, []);
 
-  const filteredTalent = students.filter(t => 
-    t.tags.some((tag: string) => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    t.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredFreelancers = freelancers.filter(f => 
+    f.tags.some((tag: string) => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    f.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -132,10 +132,10 @@ export default function HireDiscoveryPage() {
       {/* Main Header & Search */}
       <div className="max-w-6xl mx-auto w-full relative z-10 flex flex-col items-center text-center mt-10">
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight mb-4 drop-shadow-xl">
-          Find Top Student Talent
+          Find Expert Freelancers
         </h1>
         <p className="text-lg text-zinc-400 max-w-2xl mb-10">
-          Connecting businesses with skilled students in Hyderabad and beyond.
+          Connecting businesses with pre-vetted freelance professionals globally.
         </p>
 
         {/* Global Search Bar & Post Gig */}
@@ -175,7 +175,7 @@ export default function HireDiscoveryPage() {
           </div>
           <h3 className="text-lg font-bold text-white leading-snug">Need something specific?</h3>
           <p className="text-zinc-400 text-sm leading-relaxed">
-            Post a milestone-based gig and let verified students apply directly to your project. Escrow protection included.
+            Post a milestone-based gig and let verified freelancers apply directly to your project. Escrow protection included.
           </p>
           <button
             onClick={() => setIsModalOpen(true)}
@@ -218,63 +218,63 @@ export default function HireDiscoveryPage() {
         </div>
       </div>
 
-      {/* Talent Discovery Grid */}
+      {/* Freelancer Discovery Grid */}
       <div className="max-w-6xl mx-auto w-full relative z-10 mt-8">
-        <h2 className="text-2xl font-bold text-white tracking-tight mb-6">Featured Students</h2>
+        <h2 className="text-2xl font-bold text-white tracking-tight mb-6">Featured Freelancers</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {loading ? (
              <div className="col-span-full flex justify-center py-20">
                <div className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
              </div>
-          ) : filteredTalent.length > 0 ? (
-            filteredTalent.map((talent) => (
+          ) : filteredFreelancers.length > 0 ? (
+            filteredFreelancers.map((freelancer) => (
               <div 
-                key={talent.id} 
+                key={freelancer.id} 
                 className="flex flex-col bg-zinc-900/40 border border-zinc-800/80 rounded-3xl p-6 hover:bg-zinc-900/80 hover:border-amber-500/40 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(245,158,11,0.12)] transition-all duration-300 shadow-xl group"
               >
                 {/* Top: Avatar & Info */}
                 <div className="flex items-start gap-4 mb-5">
                   <div className="w-16 h-16 rounded-full bg-amber-500 text-black font-bold text-2xl flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20 group-hover:animate-[pulse_2s_ease-in-out_infinite] group-hover:shadow-[0_0_15px_rgba(245,158,11,0.4)] transition-all">
-                    {talent.initial}
+                    {freelancer.initial}
                   </div>
                   <div className="flex flex-col">
-                    <h3 className="text-xl font-bold text-white leading-tight mb-1">{talent.name}</h3>
+                    <h3 className="text-xl font-bold text-white leading-tight mb-1">{freelancer.name}</h3>
                     <div className="flex items-center gap-1 text-zinc-400 text-xs font-medium mb-3">
                       <MapPin className="h-3.5 w-3.5" />
-                      {talent.location}
+                      {freelancer.location}
                     </div>
                     
-                    {/* Tags Moved Up */}
+                    {/* Tags */}
                     <div className="flex flex-wrap gap-1.5">
-                      {talent.tags.slice(0, 3).map((tag: string, i: number) => (
+                      {freelancer.tags.slice(0, 3).map((tag: string, i: number) => (
                         <span key={i} className="bg-[#121212] border border-zinc-800 text-zinc-400 text-[10px] px-2 py-0.5 rounded-full font-semibold tracking-wide uppercase">
                           {tag}
                         </span>
                       ))}
-                      {talent.tags.length > 3 && (
+                      {freelancer.tags.length > 3 && (
                         <span className="bg-[#121212] border border-zinc-800 text-zinc-500 text-[10px] px-2 py-0.5 rounded-full font-semibold">
-                          +{talent.tags.length - 3}
+                          +{freelancer.tags.length - 3}
                         </span>
                       )}
                     </div>
                   </div>
                 </div>
 
-                {/* Stats Grid (3 Columns) */}
+                {/* Stats Grid */}
                 <div className="grid grid-cols-3 gap-3 mb-8">
                   <div className="bg-zinc-950/80 rounded-xl p-3 text-center border border-zinc-800/50 flex flex-col items-center justify-center">
-                    <div className="text-lg font-bold text-white mb-0.5">{talent.projects}</div>
+                    <div className="text-lg font-bold text-white mb-0.5">{freelancer.projects}</div>
                     <div className="text-[9px] uppercase tracking-widest text-zinc-500 font-bold">Projects</div>
                   </div>
                   <div className="bg-zinc-950/80 rounded-xl p-3 text-center border border-zinc-800/50 flex flex-col items-center justify-center">
-                    <div className="text-lg font-bold text-white mb-0.5">{talent.learning}</div>
-                    <div className="text-[9px] uppercase tracking-widest text-zinc-500 font-bold">Learning</div>
+                    <div className="text-lg font-bold text-white mb-0.5">{freelancer.learning}</div>
+                    <div className="text-[9px] uppercase tracking-widest text-zinc-500 font-bold">Progress</div>
                   </div>
                   <div className="bg-zinc-950/80 rounded-xl p-3 text-center border border-zinc-800/50 flex flex-col items-center justify-center">
                     <div className="flex items-center justify-center gap-1 mb-0.5">
                       <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
-                      <span className="text-lg font-bold text-white">{talent.rating}</span>
+                      <span className="text-lg font-bold text-white">{freelancer.rating}</span>
                     </div>
                     <div className="text-[9px] uppercase tracking-widest text-zinc-500 font-bold">Rating</div>
                   </div>
@@ -286,12 +286,12 @@ export default function HireDiscoveryPage() {
                     <div className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mb-1">Total Earned</div>
                     <div className="flex items-baseline gap-1">
                       <span className="text-amber-500 font-bold text-lg">₹</span>
-                      <span className="text-xl font-bold text-white tracking-tight">{talent.earned}</span>
+                      <span className="text-xl font-bold text-white tracking-tight">{freelancer.earned}</span>
                     </div>
                   </div>
                   
                   <Link 
-                    href={`/hire/${talent.id}`} 
+                    href={`/hire/${freelancer.id}`} 
                     className="flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-black text-sm font-bold rounded-xl hover:bg-zinc-200 transition-colors w-full sm:w-auto"
                   >
                     View Profile
@@ -302,7 +302,7 @@ export default function HireDiscoveryPage() {
             ))
           ) : (
             <div className="col-span-full text-center py-20 border border-zinc-800/80 border-dashed rounded-3xl bg-zinc-900/20">
-              <h3 className="text-xl font-bold text-white mb-2">No talent found</h3>
+              <h3 className="text-xl font-bold text-white mb-2">No freelancers found</h3>
               <p className="text-zinc-400">Try adjusting your skill search or filters to find exactly what you need.</p>
             </div>
           )}

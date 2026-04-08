@@ -37,10 +37,10 @@ export default function ProfileDropdown() {
   };
 
   const handleToggleMode = () => {
-    const newMode = viewMode === 'learner' ? 'hirer' : 'learner';
+    const newMode = viewMode === 'freelancer' ? 'client' : 'freelancer';
     setViewMode(newMode);
     setIsOpen(false);
-    router.push(newMode === 'hirer' ? '/hire' : '/dashboard');
+    router.push(newMode === 'client' ? '/hire' : '/dashboard');
   };
 
   const closeAndNavigate = (path: string) => {
@@ -85,7 +85,7 @@ export default function ProfileDropdown() {
               className="flex items-center gap-3 w-full text-left px-3 py-2.5 text-sm font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/50 rounded-xl transition-all"
             >
               <Repeat className="w-4 h-4" />
-              {viewMode === 'learner' ? 'Switch to Hirer' : 'Switch to Learner'}
+              {viewMode === 'freelancer' ? 'Switch to Client' : 'Switch to Freelancer'}
             </button>
           </div>
 

@@ -19,7 +19,7 @@ export default function Navbar() {
   const links = [
     { name: 'Home', href: '/', active: true },
     { name: 'Explore', href: '/explore', active: false },
-    viewMode === 'hirer'
+    viewMode === 'client'
       ? { name: 'Hire', href: '/hire', active: false }
       : { name: 'Dashboard', href: '/dashboard', active: false },
     { name: 'Dev Console', href: isAdmin ? '/admin' : '#', active: false },

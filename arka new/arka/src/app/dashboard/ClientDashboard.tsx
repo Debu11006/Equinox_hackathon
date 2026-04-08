@@ -15,34 +15,32 @@ const CATEGORIES = [
   { name: 'AI', icon: BrainCircuit },
 ];
 
-export default function HirerDashboard() {
-  const [topStudents, setTopStudents] = useState<any[]>([]);
+export default function ClientDashboard() {
+  const [topFreelancers, setTopFreelancers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const fetchStudents = async () => {
+    const fetchFreelancers = async () => {
       try {
-        // Note: Without knowing the exact schema, this attempts to fetch users marked as student/learner.
-        // If 'role' doesn't exist, it might fetch nothing unless rules fail. 
-        const q = query(collection(db, 'users'), where('role', '==', 'student'), limit(4));
+        // Attempt to fetch users marked as freelancer (previously student/learner)
+        const q = query(collection(db, 'users'), where('accountType', '==', 'freelancer'), limit(4));
         const snapshot = await getDocs(q);
-        const studentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const freelancersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
-        // Fallback dummy data in case query fails or is empty for hackathon sake
-        if (studentsData.length === 0) {
-          setTopStudents([
+        // Fallback dummy data or use results
+        if (freelancersData.length === 0) {
+          setTopFreelancers([
             { id: '1', displayName: 'Aisha K.', role: 'student', title: 'React Developer', rating: 4.9, location: 'Hyderabad', skills: ['Next.js', 'Tailwind'] },
             { id: '2', displayName: 'Rahul M.', role: 'student', title: 'UI/UX Designer', rating: 4.8, location: 'Hyderabad', skills: ['Figma', 'Prototyping'] },
             { id: '3', displayName: 'Sneha P.', role: 'student', title: 'Backend Engineer', rating: 5.0, location: 'Hyderabad', skills: ['Node.js', 'Python'] }
           ]);
         } else {
-          setTopStudents(studentsData);
+          setTopFreelancers(freelancersData);
         }
       } catch (error) {
-        console.error('Error fetching students:', error);
-        // Fallback for hackathon
-        setTopStudents([
+        console.error('Error fetching freelancers:', error);
+        setTopFreelancers([
           { id: '1', displayName: 'Aisha K.', role: 'student', title: 'React Developer', rating: 4.9, location: 'Hyderabad', skills: ['Next.js', 'Tailwind'] },
           { id: '2', displayName: 'Rahul M.', role: 'student', title: 'UI/UX Designer', rating: 4.8, location: 'Hyderabad', skills: ['Figma', 'Prototyping'] },
           { id: '3', displayName: 'Sneha P.', role: 'student', title: 'Backend Engineer', rating: 5.0, location: 'Hyderabad', skills: ['Node.js', 'Python'] }
@@ -51,7 +49,7 @@ export default function HirerDashboard() {
         setLoading(false);
       }
     };
-    fetchStudents();
+    fetchFreelancers();
   }, []);
 
   return (
@@ -60,7 +58,7 @@ export default function HirerDashboard() {
       {/* 1. Hero Search Section */}
       <div className="flex flex-col items-center text-center mt-6 mb-4">
         <h1 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight mb-8 max-w-3xl">
-          Find the perfect student talent for your project
+          Find the perfect freelance talent for your project
         </h1>
         
         <div className="w-full max-w-2xl relative group">
@@ -126,7 +124,7 @@ export default function HirerDashboard() {
               Need something specific?
             </h3>
             <p className="text-zinc-400 text-sm leading-relaxed mb-8">
-              Post a milestone-based gig and let verified students apply directly to your project. Escrow protection included.
+              Post a milestone-based gig and let verified freelancers apply directly to your project. Escrow protection included.
             </p>
             <button 
               onClick={() => router.push('/hire')}
@@ -142,8 +140,8 @@ export default function HirerDashboard() {
       <div className="flex flex-col gap-6 mt-4">
         <div className="flex justify-between items-end">
           <div>
-            <h2 className="text-xl font-bold text-white tracking-tight">Top Rated Students in Hyderabad</h2>
-            <p className="text-zinc-500 text-sm mt-1">Discover elite student freelancers in your region.</p>
+            <h2 className="text-xl font-bold text-white tracking-tight">Top Rated Freelancers in Hyderabad</h2>
+            <p className="text-zinc-500 text-sm mt-1">Discover elite freelance talent in your region.</p>
           </div>
           <button className="text-sm font-bold text-zinc-400 hover:text-white transition-colors">
             View All
@@ -154,19 +152,19 @@ export default function HirerDashboard() {
           {loading ? (
              <div className="col-span-3 text-center py-10 text-zinc-500">Loading talent...</div>
           ) : (
-            topStudents.map((student) => (
+            topFreelancers.map((freelancer) => (
               <div 
-                key={student.id} 
+                key={freelancer.id} 
                 className="flex flex-col bg-[#121212] border border-zinc-800/80 rounded-3xl p-6 hover:border-amber-500/30 transition-all shadow-xl group"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-zinc-800 rounded-full border border-zinc-700 flex items-center justify-center text-lg font-bold text-white shrink-0">
-                      {student.displayName?.charAt(0) || 'U'}
+                      {freelancer.displayName?.charAt(0) || 'U'}
                     </div>
                     <div>
-                      <h3 className="font-bold text-white">{student.displayName}</h3>
-                      <p className="text-xs text-zinc-400 font-medium">{student.title}</p>
+                      <h3 className="font-bold text-white">{freelancer.displayName}</h3>
+                      <p className="text-xs text-zinc-400 font-medium">{freelancer.title}</p>
                     </div>
                   </div>
                 </div>
@@ -174,16 +172,16 @@ export default function HirerDashboard() {
                 <div className="flex items-center gap-4 text-xs font-semibold text-zinc-500 uppercase tracking-widest mt-2 mb-6">
                   <span className="flex items-center gap-1">
                     <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                    {student.rating}
+                    {freelancer.rating}
                   </span>
                   <span className="flex items-center gap-1">
                     <MapPin className="w-3.5 h-3.5 text-amber-500" />
-                    {student.location}
+                    {freelancer.location}
                   </span>
                 </div>
 
                 <div className="flex flex-wrap gap-2 mt-auto">
-                  {student.skills?.map((skill: string) => (
+                  {freelancer.skills?.map((skill: string) => (
                     <span key={skill} className="bg-zinc-900 border border-zinc-800 text-zinc-300 px-2.5 py-1 rounded-lg text-xs font-medium">
                       {skill}
                     </span>
