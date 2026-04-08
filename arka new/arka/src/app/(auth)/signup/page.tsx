@@ -27,7 +27,7 @@ export default function SignUpPage() {
           displayName: name
         });
       }
-      router.push('/');
+      router.push('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Failed to create account. Please try again.');
     } finally {
@@ -41,7 +41,7 @@ export default function SignUpPage() {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      router.push('/');
+      router.push('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Failed to continue with Google.');
     } finally {

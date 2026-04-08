@@ -4,15 +4,16 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import ProtectedRoute from '../components/ProtectedRoute';
 import { db } from '../lib/firebase';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, onSnapshot, collection } from 'firebase/firestore';
 import { UserDocument, UserRole } from '../types';
-import { User, Mail, Save, FileText, Loader2, Link as LinkIcon, AlertCircle, ArrowLeft, Plus, X } from 'lucide-react';
+import { User, Mail, Save, FileText, Loader2, Link as LinkIcon, AlertCircle, ArrowLeft, Plus, X, Award, Shield, Zap, Crown, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ProfilePage() {
   const { user } = useAuth();
   
   const [profileData, setProfileData] = useState<Partial<UserDocument>>({});
+  const [verifiedSkills, setVerifiedSkills] = useState<{ id: string, name: string, rank: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   
@@ -20,6 +21,16 @@ export default function ProfilePage() {
   const [newSkill, setNewSkill] = useState('');
   const [newLink, setNewLink] = useState('');
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
+  // Map of skill keys to display names
+  const SKILL_NAMES: Record<string, string> = {
+    'web_dev': 'Web Development',
+    'python_automation': 'Python Automation',
+    'data_analysis': 'Data Analysis',
+    'ai_engineering': 'AI Engineering',
+    'cyber_security': 'Cyber Security',
+    'graphic_design': 'Graphic Design'
+  };
 
   useEffect(() => {
     async function fetchProfile() {
@@ -32,10 +43,9 @@ export default function ProfilePage() {
         if (docSnap.exists()) {
           setProfileData(docSnap.data() as UserDocument);
         } else {
-          // Initialize with default data based on Auth provider
           setProfileData({
             uid: user.uid,
-            role: 'student', // Defaulting to student as planned
+            role: 'student',
             displayName: user.displayName || '',
             email: user.email || '',
             photoURL: user.photoURL || '',
@@ -53,6 +63,26 @@ export default function ProfilePage() {
     }
     
     fetchProfile();
+
+    // Real-time listener for Verified Skills
+    if (user?.uid) {
+      const skillsCol = collection(db, 'users', user.uid, 'skills');
+      const unsubscribe = onSnapshot(skillsCol, (snap) => {
+        const skills: { id: string, name: string, rank: string }[] = [];
+        snap.forEach(doc => {
+          const data = doc.data();
+          if (data.rank) {
+             skills.push({
+               id: doc.id,
+               name: SKILL_NAMES[doc.id] || doc.id.replace(/_/g, ' ').toUpperCase(),
+               rank: data.rank
+             });
+          }
+        });
+        setVerifiedSkills(skills);
+      });
+      return () => unsubscribe();
+    }
   }, [user]);
 
   const handleSave = async () => {
@@ -179,6 +209,84 @@ export default function ProfilePage() {
                     placeholder="Tell clients about yourself, your experience, and what you aim to achieve..."
                   />
                 </div>
+
+                {/* Verified Skills & Ranks Section */}
+                <div className="flex flex-col gap-5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                       <Award className="h-4 w-4 text-amber-500" /> 
+                       Verified Skills & Ranks
+                    </label>
+                    <div className="h-[1px] flex-1 bg-zinc-800/50 ml-4" />
+                  </div>
+                  
+                  {verifiedSkills.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {verifiedSkills.map((skill) => {
+                        const isProfessional = skill.rank === 'professional';
+                        const isSpecialist = skill.rank === 'specialist';
+                        
+                        return (
+                          <div 
+                            key={skill.id}
+                            className={`relative overflow-hidden group p-5 rounded-2xl border transition-all duration-300 bg-zinc-950/40 ${
+                              isProfessional ? 'border-amber-500/40 shadow-[0_0_20px_rgba(245,158,11,0.1)]' :
+                              isSpecialist ? 'border-zinc-400/40 shadow-[0_0_20px_rgba(161,161,170,0.1)]' :
+                              'border-zinc-800 hover:border-zinc-700'
+                            }`}
+                          >
+                            {/* Glow accents for high ranks */}
+                            {(isProfessional || isSpecialist) && (
+                              <div className={`absolute top-0 right-0 w-24 h-24 blur-[40px] -mr-12 -mt-12 opacity-20 ${
+                                isProfessional ? 'bg-amber-500' : 'bg-zinc-400'
+                              }`} />
+                            )}
+
+                            <div className="flex items-center justify-between relative z-10">
+                              <div className="flex flex-col gap-1">
+                                <h4 className="font-bold text-white group-hover:text-amber-400 transition-colors uppercase text-xs tracking-widest">
+                                  {skill.name}
+                                </h4>
+                                <div className="flex items-center gap-1.5 mt-1">
+                                   {isProfessional ? <Crown className="w-3.5 h-3.5 text-amber-500" /> :
+                                    isSpecialist ? <Zap className="w-3.5 h-3.5 text-zinc-400" /> :
+                                    <Shield className="w-3.5 h-3.5 text-blue-500" />}
+                                   <span className={`text-sm font-black capitalize ${
+                                     isProfessional ? 'text-amber-500' :
+                                     isSpecialist ? 'text-zinc-400' :
+                                     'text-zinc-500'
+                                   }`}>
+                                     {skill.rank}
+                                   </span>
+                                </div>
+                              </div>
+                              
+                              <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${
+                                isProfessional ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' :
+                                isSpecialist ? 'bg-zinc-400/10 border-zinc-400/20 text-zinc-400' :
+                                'bg-zinc-900 border-zinc-800 text-zinc-600'
+                              }`}>
+                                <Sparkles className="w-5 h-5" />
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="p-8 rounded-2xl border border-dashed border-zinc-800 flex flex-col items-center justify-center text-center gap-3">
+                       <Award className="w-8 h-8 text-zinc-800" />
+                       <p className="text-zinc-500 text-xs font-medium max-w-[200px]">
+                         You haven't earned any verified ranks yet. Complete milestones in the learning workspace to level up!
+                       </p>
+                       <Link href="/learn/web-dev" className="text-xs font-bold text-amber-500 underline underline-offset-4 mt-1">
+                          Browse Skill Paths
+                       </Link>
+                    </div>
+                  )}
+                </div>
+
+                <div className="w-full h-[1px] bg-zinc-800/30 my-2" />
 
                 {/* Skills Section */}
                 <div className="flex flex-col gap-3">

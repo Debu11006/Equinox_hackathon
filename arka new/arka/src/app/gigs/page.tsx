@@ -1,91 +1,58 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Star, Clock, ArrowRight } from 'lucide-react';
-import ProtectedRoute from '../components/ProtectedRoute'; // assuming we protect gigs, if not it's fine
+import React, { useState, useEffect } from 'react';
+import { Star, Clock, ArrowRight, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-
-const MOCK_GIGS = [
-  {
-    id: '1',
-    level: 'Beginner',
-    levelColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-    duration: '2-3 days',
-    price: '₹1500',
-    title: 'Design 3 Instagram Posts',
-    description: 'We need 3 engaging Instagram posts designed for an upcoming local coffee shop campaign highlighting our new seasonal drinks.',
-    tags: ['Graphic Design', 'Canva'],
-    clientName: 'Sample Client',
-    clientRating: 5.0
-  },
-  {
-    id: '2',
-    level: 'Intermediate',
-    levelColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-    duration: '1 week',
-    price: '₹5000',
-    title: 'Build Landing Page',
-    description: 'Create a responsive, high-converting landing page using React and Tailwind CSS for my new SaaS product launch.',
-    tags: ['Web Development', 'React'],
-    clientName: 'Tech Start',
-    clientRating: 4.8
-  },
-  {
-    id: '3',
-    level: 'Advanced',
-    levelColor: 'bg-red-500/10 text-red-400 border-red-500/20',
-    duration: '2 weeks',
-    price: '₹12000',
-    title: 'Python Web Scraper',
-    description: 'Write a robust Python script to scrape e-commerce pricing data and save it directly to a CSV file on a nightly basis.',
-    tags: ['Python', 'Automation'],
-    clientName: 'DataCorp',
-    clientRating: 4.9
-  },
-  {
-    id: '4',
-    level: 'Beginner',
-    levelColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-    duration: '1 day',
-    price: '₹800',
-    title: 'Proofread Blog Post',
-    description: 'Need a native English speaker to proofread and lightly edit a 1000-word blog post about digital marketing.',
-    tags: ['Writing', 'Editing'],
-    clientName: 'ContentHaus',
-    clientRating: 4.7
-  },
-  {
-    id: '5',
-    level: 'Intermediate',
-    levelColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-    duration: '3-4 days',
-    price: '₹3500',
-    title: 'Fix WordPress Bugs',
-    description: 'Looking for a developer to fix some specific styling bugs on our WordPress site running Elementor.',
-    tags: ['WordPress', 'CSS'],
-    clientName: 'Local Agency',
-    clientRating: 5.0
-  },
-  {
-    id: '6',
-    level: 'Advanced',
-    levelColor: 'bg-red-500/10 text-red-400 border-red-500/20',
-    duration: '1 month',
-    price: '₹25000',
-    title: 'Full Stack Dashboard',
-    description: 'Develop a full-stack dashboard for managing inventory. Must use Next.js, Tailwind, and Firebase.',
-    tags: ['Next.js', 'Firebase'],
-    clientName: 'MegaStore',
-    clientRating: 4.9
-  }
-];
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
 const FILTERS = ['All Gigs', 'Beginner', 'Intermediate', 'Advanced'];
 
 export default function GigsPage() {
   const [activeFilter, setActiveFilter] = useState('All Gigs');
+  const [gigs, setGigs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredGigs = MOCK_GIGS.filter(gig => {
+  useEffect(() => {
+    const fetchGigs = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'gigs'));
+        const gigsData = querySnapshot.docs.map(doc => {
+          const data = doc.data();
+          
+          // Map Firebase data to UI fields, providing fallbacks for missing data
+          // Ensure we have a valid level to match our filters
+          const level = data.level || ['Beginner', 'Intermediate', 'Advanced'][Math.floor(Math.random() * 3)];
+          let levelColor = 'bg-amber-500/10 text-amber-400 border-amber-500/20'; // Default Intermediate
+          if (level === 'Beginner') levelColor = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+          if (level === 'Advanced') levelColor = 'bg-red-500/10 text-red-400 border-red-500/20';
+
+          return {
+            id: doc.id,
+            level: level,
+            levelColor: levelColor,
+            duration: data.duration || 'Flexible',
+            price: data.price ? data.price : (data.budget ? `₹${data.budget}` : 'Negotiable'),
+            title: data.title || 'Untitled Gig',
+            description: data.description || 'No description provided.',
+            tags: data.tags || data.skillsRequired || [],
+            clientName: data.clientName || 'Verified Client',
+            clientRating: data.clientRating || 5.0,
+            ...data
+          };
+        });
+        setGigs(gigsData);
+      } catch (error) {
+        console.error('Error fetching gigs:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGigs();
+  }, []);
+
+  const filteredGigs = gigs.filter(gig => {
     if (activeFilter === 'All Gigs') return true;
     return gig.level === activeFilter;
   });
@@ -122,66 +89,71 @@ export default function GigsPage() {
 
       {/* Gigs Grid */}
       <div className="max-w-6xl mx-auto w-full relative z-10 mt-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredGigs.map((gig) => (
-            <div 
-              key={gig.id} 
-              className="flex flex-col bg-zinc-900/40 border border-zinc-800/80 rounded-3xl p-7 hover:bg-zinc-900/80 hover:border-accent/30 transition-all duration-300 shadow-xl group"
-            >
-              {/* Header: Level & Duration */}
-              <div className="flex items-center justify-between mb-6">
-                <div className={`px-3 py-1 rounded-full border text-xs font-bold tracking-wide uppercase ${gig.levelColor}`}>
-                  {gig.level}
-                </div>
-                <div className="flex items-center gap-1.5 text-zinc-500 text-sm font-medium">
-                  <Clock className="w-4 h-4" />
-                  {gig.duration}
-                </div>
-              </div>
-
-              {/* Price */}
-              <div className="mb-4">
-                <span className="text-4xl font-bold text-accent tracking-tighter">{gig.price}</span>
-              </div>
-
-              {/* Title & Description */}
-              <h3 className="text-xl font-bold text-white mb-3 leading-tight">{gig.title}</h3>
-              <p className="text-zinc-400 text-sm leading-relaxed mb-6 line-clamp-3">
-                {gig.description}
-              </p>
-
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2 mb-8">
-                {gig.tags.map((tag, i) => (
-                  <span key={i} className="bg-zinc-800 text-zinc-300 text-xs px-2.5 py-1 rounded-md font-medium">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-
-              {/* Bottom: Client info & Apply */}
-              <div className="flex items-center justify-between mt-auto pt-5 border-t border-zinc-800/80">
-                <div>
-                  <div className="text-sm font-bold text-white">{gig.clientName}</div>
-                  <div className="flex items-center gap-1 mt-0.5">
-                    <Star className="w-3.5 h-3.5 fill-accent text-accent" />
-                    <span className="text-xs text-zinc-400 font-medium">{gig.clientRating.toFixed(1)} Rating</span>
+        {loading ? (
+          <div className="flex flex-col justify-center items-center py-20 border border-zinc-800/80 border-dashed rounded-3xl bg-zinc-900/20">
+            <Loader2 className="w-10 h-10 text-accent animate-spin mb-4" />
+            <p className="text-zinc-400 font-medium">Loading available gigs...</p>
+          </div>
+        ) : filteredGigs.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredGigs.map((gig) => (
+              <div 
+                key={gig.id} 
+                className="flex flex-col bg-zinc-900/40 border border-zinc-800/80 rounded-3xl p-7 hover:bg-zinc-900/80 hover:border-accent/30 transition-all duration-300 shadow-xl group"
+              >
+                {/* Header: Level & Duration */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className={`px-3 py-1 rounded-full border text-xs font-bold tracking-wide uppercase ${gig.levelColor}`}>
+                    {gig.level}
+                  </div>
+                  <div className="flex items-center gap-1.5 text-zinc-500 text-sm font-medium">
+                    <Clock className="w-4 h-4" />
+                    {gig.duration}
                   </div>
                 </div>
-                
-                <Link 
-                  href={`/gigs/${gig.id}`} 
-                  className="flex items-center gap-1.5 text-sm font-bold text-white group-hover:text-accent transition-colors"
-                >
-                  Apply Now
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
+
+                {/* Price */}
+                <div className="mb-4">
+                  <span className="text-4xl font-bold text-accent tracking-tighter">{gig.price}</span>
+                </div>
+
+                {/* Title & Description */}
+                <h3 className="text-xl font-bold text-white mb-3 leading-tight">{gig.title}</h3>
+                <p className="text-zinc-400 text-sm leading-relaxed mb-6 line-clamp-3">
+                  {gig.description}
+                </p>
+
+                {/* Tags */}
+                <div className="flex flex-wrap gap-2 mb-8 mt-auto">
+                  {gig.tags?.map((tag: string, i: number) => (
+                    <span key={i} className="bg-zinc-800 text-zinc-300 text-xs px-2.5 py-1 rounded-md font-medium">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Bottom: Client info & Apply */}
+                <div className="flex items-center justify-between mt-auto pt-5 border-t border-zinc-800/80">
+                  <div>
+                    <div className="text-sm font-bold text-white">{gig.clientName}</div>
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <Star className="w-3.5 h-3.5 fill-accent text-accent" />
+                      <span className="text-xs text-zinc-400 font-medium">{gig.clientRating.toFixed(1)} Rating</span>
+                    </div>
+                  </div>
+                  
+                  <Link 
+                    href={`/gigs/${gig.id}`} 
+                    className="flex items-center gap-1.5 text-sm font-bold text-white group-hover:text-accent transition-colors"
+                  >
+                    Apply Now
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-        
-        {filteredGigs.length === 0 && (
+            ))}
+          </div>
+        ) : (
           <div className="text-center py-20 border border-zinc-800/80 border-dashed rounded-3xl bg-zinc-900/20">
             <h3 className="text-xl font-bold text-white mb-2">No gigs found</h3>
             <p className="text-zinc-400">There are currently no {activeFilter.toLowerCase()} gigs available.</p>

@@ -16,8 +16,8 @@ export interface UserDocument {
   portfolioLinks?: string[];
   rating?: number;
   
-  // Client-specific fields
   companyName?: string;
+  onboardingComplete?: boolean;
 }
 
 export type GigStatus = 'open' | 'in_progress' | 'completed';
